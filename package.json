@@ -1,0 +1,28 @@
+{
+  "name": "react-starter",
+  "version": "0.0.2",
+  "description": "A react starter template with react router, babel, react-hot-loader, and eslint.",
+  "main": "client.js",
+  "author": "Josh Black",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joshblack/react-starter"
+  },
+  "devDependencies": {
+    "babel": "^5.3.3",
+    "babel-core": "^4.6.6",
+    "babel-eslint": "^3.1.1",
+    "babel-loader": "^5.0.0",
+    "eslint": "^0.17.1",
+    "react-hot-loader": "^1.2.3",
+    "webpack": "^1.7.2",
+    "webpack-dev-server": "^1.7.0"
+  },
+  "dependencies": {
+    "react": "^0.13.1",
+    "react-router": "^0.13.1"
+  },
+  "scripts": {
+    "start": "iojs server.js"
+  }
+}
