@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { translate, rotate, scale, multiply } from '../matrix';
 
 // TODO:
 // Make additive tool that shows you the animation as you
@@ -17,25 +18,38 @@ export default class App extends Component {
     super();
 
     this.state = {
-      to: { x: 400, y: 400 },
-      scale: { x: 2, y: 2 }
+      translate: { x: 400, y: 400 },
+      scale: { x: 2, y: 2 },
+      rotate: 45
     };
 
     this.handleOnclick = this.handleOnclick.bind(this);
   }
 
   handleOnclick() {
-    if (this.state.to.x === 400)
-      this.setState({ to: { x: 0, y: 0 }, scale: { x: 1, y: 1 } });
-    else
-      this.setState({ to: { x: 400, y: 400 }, scale: { x: 2, y: 2} });
+    if (this.state.to.x === 400) {
+      this.setState({
+        translate: { x: 0, y: 0 },
+        scale: { x: 1, y: 1 },
+        rotate: 0
+      });
+    } else {
+      this.setState({
+        translate: { x: 400, y: 400 },
+        scale: { x: 2, y: 2},
+        rotate: 45
+      });
+    }
   }
 
   render () {
     return (
       <section>
         <button onClick={this.handleOnclick}>Click me</button>
-        <Stepper to={this.state.to} scale={this.state.scale}>
+        <Stepper
+          translate={this.state.translate}
+          scale={this.state.scale}
+          rotate={this.state.rotate}>
           {transform => <Box transform={transform} />}
         </Stepper>
       </section>
@@ -52,12 +66,21 @@ function interpolate(x, y, t) {
 const step = 0.01;
 
 class Stepper extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
+    this.matrix = multiply(
+      rotate(props.rotate),
+      scale(props.scale.x, props.scale.y),
+      translate(props.translate.x, props.translate.y)
+    );
 
     this.state = {
-      offset: { x: 0, y: 0 },
-      scale: { x: 1, y: 1 }
+      position: [
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+      ]
     };
 
     this.renderFrame = this.renderFrame.bind(this);
@@ -88,11 +111,11 @@ class Stepper extends Component {
 
   componentWillReceiveProps(props) {
     cancelAnimationFrame(this.raf);
-    this.renderFrame(0);
+    // this.renderFrame(0);
   }
 
   componentDidMount() {
-    this.renderFrame(0);
+    // this.renderFrame(0);
   }
 
   componentWillUnmount() {
@@ -103,20 +126,18 @@ class Stepper extends Component {
     // Make child just expose a transform property that it then hooks into?
     // In future can abstract components that have certain animations
     // and children passed into these components will be animated that way
-    return this.props.children(
-      CSSmatrix(
-        this.state.scale.x,
-        0,
-        0,
-        this.state.scale.y,
-        this.state.offset.x,
-        this.state.offset.y
-      ));
+    return this.props.children(this.state.position);
   }
 }
 
-function CSSmatrix(...values) {
-  return `matrix(${values.join(', ')})`;
+function CSSmatrix(matrix) {
+  return 'matrix(' +
+    matrix[0][0] + ', ' +
+    matrix[0][1] + ', ' +
+    matrix[0][2] + ', ' +
+    matrix[1][0] + ', ' +
+    matrix[1][1] + ', ' +
+    matrix[1][2] + ')';
 }
 
 // Abstract this to render children and have this control
