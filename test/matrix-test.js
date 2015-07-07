@@ -2,6 +2,13 @@ import { Component } from 'react';
 import { translate, rotate, scale, multiply } from '../matrix';
 import { interpolate, nInterpolate } from '../vector';
 
+// TO TEST
+// Breaking down vectors into their identity forms, verifying each one interpolates correctly, then checking combined also interpolates correctly
+// Good test could be the identity transformation
+
+
+
+
 // TODO:
 // Make additive tool that shows you the animation as you
 // add effects onto it in a continuum.
@@ -107,31 +114,34 @@ class Stepper extends Component {
   static raf
 
   renderFrame(t, T, R, S) {
-    // Cool idea would be to have "preview" matching ten steps (t = 0.1, 0.2 0.3, ...)
     this.raf = requestAnimationFrame(() => {
       const p = this.state.position;
+      // const position = multiply(
+      //   mInterpolate(p, T, t, interpolate),
+      //   mInterpolate(p, R, t, nInterpolate),
+      //   mInterpolate(p, S, t, interpolate)
+      // );
 
-      const nT = mInterpolate(p, T, t, interpolate);
-      const nR = mInterpolate(p, R, t, nInterpolate);
-      const nS = mInterpolate(p, S, t, interpolate)
-      const position = multiply(nT, nR, nS);
+      // const position = mInterpolate(p, T, t, interpolate);
+      // const position = mInterpolate(p, R, t, nInterpolate);
+      const position = mInterpolate(p, S, t, interpolate);
 
       this.setState({ position });
 
       if (t + step < 1) {
-        this.renderFrame(t + step, nT, nR, nS);
+        this.renderFrame(t + step, T, R, S);
       }
     });
   }
 
   componentWillReceiveProps(props) {
     cancelAnimationFrame(this.raf);
-    this.renderFrame(0, T, R, S);
+    this.renderFrame(0);
   }
 
   componentDidMount() {
-    const T = translate(this.props.translate.x, this.props.translate.y);
-    // const T = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+    // const T = translate(this.props.translate.x, this.props.translate.y);
+    const T = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
 
     // const R = rotate(this.props.rotate);
     const R = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
@@ -139,7 +149,7 @@ class Stepper extends Component {
     const S = scale(this.props.scale.x, this.props.scale.y);
     // const S = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
 
-    this.renderFrame(0.5, T, R, S);
+    this.renderFrame(0, T, R, S);
   }
 
   componentWillUnmount() {
